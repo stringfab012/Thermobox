@@ -18,7 +18,7 @@ const pass_field = document.querySelector('.password');
     const username = loginForm.username.value;
     const password = loginForm.password.value;
     if (username === "admin" && password === "password") {
-      window.open('https://www.google.co.in/')
+      window.open('https://github.com/stringfab012/Thermobox/')
     } else {
       alert("Error Wrong Password or Username.");
     }
