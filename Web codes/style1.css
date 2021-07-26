@@ -1,0 +1,117 @@
+html {
+  min-height: 100%;
+  background-image: url('https://schoolbook.getmyuni.com/assets/images/rev_img/53787__30148/1513348222ieee2-1910x786.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+
+
+body {
+  font-family: Georgia, Times, serif;}
+
+.c1{
+  background-image: url('https://www.publicdomainpictures.net/pictures/150000/velka/stripes-background-mint-green.jpg');
+  padding: 50px;
+  border: 7px solid black;
+  }
+
+
+h1{
+  text-align: center;
+  font-size:200%;
+}
+
+h2{
+  font-family: Arial, Verdana, sans-serif;
+  text-decoration: underline;}  
+
+table.center{
+  margin-left: auto;  
+  margin-right: auto;
+  text-align: center; 
+}  
+
+
+#block1{
+  background-color: orange;
+  border-color: darkslategrey;
+  border-style: solid;
+}
+
+#block2{
+  background-color:lightgreen;
+  border-color: darkslategrey;
+  border-style: solid;
+ 
+}
+
+#block3{
+  background-color: greenyellow;
+  border-color: darkslategrey;
+  border-style: solid;
+}
+
+#block4{
+  background-color: lightcoral;
+  border-color: darkslategrey;
+  border-style: solid;
+}
+
+.button1{
+  background-color:yellowgreen; /* Green */
+  color: white;
+  padding: 10px;
+  text-align: center;
+  font-size: 20px;
+  margin: 4px 2px;
+  border-radius: 12px;
+  float:right;
+}
+
+#push1{
+  background-color:brown; 
+  color: white;
+  padding: 10px;
+  text-align: center;
+  font-size: 20px;
+  margin: 4px 2px;
+  border-radius: 12px;
+  margin-left: 700px;
+  
+
+}
+
+.button2{
+  background-color:orangered; /* Green */
+  color: white;
+  padding: 10px;
+  text-align: center;
+  font-size: 20px;
+  margin: 4px 2px;
+  border-radius: 12px;
+  float:right;
+  
+}
+
+.button1:hover {background-color: #3e8e41}
+			.buttonON:active {
+				background-color: #3e8e41;
+				box-shadow: 0 1px #666;
+				transform: translateY(4px);
+			}
+
+.button2:hover {background-color: #c0392b}
+.buttonOFF:active {
+background-color: #c0392b;
+box-shadow: 0 1px #666;
+transform: translateY(4px);
+			}    
+      
+#push1:hover {background-color: #c0392b}
+.buttonOFF:active {
+background-color: #c0392b;
+box-shadow: 0 1px #666;
+transform: translateY(4px);
+			}          
+
