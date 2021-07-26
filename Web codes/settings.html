@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+    <title>Settings</title>
+    <link rel="stylesheet" type="text/css" href="style1.css" media="screen"/>
+</head>
+<body>
+<div class="d1">   
+
+
+<div class="c1">
+    <h1>Settings</h1>
+
+    <span >
+        <button class=button1 onclick="document.location='dashboard.html'">Dashboard</button>
+        <button class="button2"onclick="document.location='index.html'">Logout</button>
+    </span>
+</div>
+
+<div class="c2">
+    <table class="center">
+        <tr>
+            <td id="block1">
+                <h2>Current total Allowed Entries</h2><iframe width="500" height="220" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/969032/widgets/325109"></iframe></td>
+            <td id="block2">
+               <h2>Current Maximum Allowed Temp</h2><iframe width="500" height="220" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/969032/widgets/325113"></iframe></td>
+        </tr>
+        <tr>
+            <td id="block=3">
+                <input type="text" id="entries" placeholder="Max. Entries" style="color:#2c3e50;font-weight: bold;font-size: 30px;"> </td>
+            <td id="block=4">    
+                <input type="text" id="temp" placeholder="Max. Allowed Temperature" style="color:#2c3e50;font-weight: bold;font-size: 30px;"> <br></td>
+        
+        </tr>           
+        
+    </table>
+</div>
+<div class="c3">
+    <button id=push1>Push data</button>
+
+</div>
+</div> 
+<script src="app2.js"></script>   
+</body>
+</html>
