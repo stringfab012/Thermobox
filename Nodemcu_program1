@@ -1,0 +1,331 @@
+#include <Wire.h>
+#include <Adafruit_MLX90614.h>
+#include <LiquidCrystal.h>
+#include <Servo.h>
+#include <ESP8266WiFi.h> // ESP8266WiFi.h library
+#include <ThingSpeak.h>
+
+
+const char* ssid     = "OnePlus 6";// replace subscribe with your WiFi SSID(Name)
+const char* password = "Inkheart";//replace with Your Wifi Password name
+const char* host = "api.thingspeak.com";
+const char* writeAPIKey = "PC2FP123343GUS9Y"; //copy yout ThingSpeak channel API Key.
+const char* writeAPIKey1 = "P0C5Y478S77H47MV";
+char* server = "api.thingspeak.com";
+WiFiClient client;
+
+
+#define buzzer A0
+#define IRpin 16 //GPIO16 = D0: Echo pin for the sanitizer dispenser US sensor
+//#define trigPin 0 //GPIO0 = D3: Trigger pin for the sanitizer dispenser US sensor
+//#define rs 8//LCD's RS pin
+//#define en 9//LCD's EN pin
+#define pump 15 //GPIO15 = D8: Pin to control the pump dispensing the sanitizer
+//#define servo A3
+
+
+
+//LiquidCrystal lcd(rs, en, 10, 11, 12, 13); //Initialize pins for the LCD
+Adafruit_MLX90614 mlx = Adafruit_MLX90614();
+Servo myservo;
+
+
+
+/****************************VARIABLES FOR VISITOR COUNTER***********************************/
+int sensor1[] = {2,14}; //{echo pin, trigger pin)
+int sensor2[] = {12,13};
+int sensor1Initial;
+int sensor2Initial;
+String sequence = "";
+int timeoutCounter = 0;
+int currentPeople = 0;
+long maxPeople = 5; 
+int rejections=0;
+int maxtemp=98;
+/****************************VARIABLES FOR SANITIZER DISPENSER************************************/
+long duration;
+int distance;
+int dist;
+
+/****************************VARIABLES FOR TEMP SENSOR************************************/
+
+float temp;
+
+void setup() {
+  Serial.begin(115200);
+
+  
+//  Connect to WiFi network
+  Serial.println("Connecting to ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+  delay(500);
+  Serial.print(".");  }
+  Serial.println("");
+  Serial.println("WiFi connected");
+
+   
+  pinMode(buzzer, OUTPUT);
+  //pinMode(trigPin, OUTPUT);
+  pinMode(IRpin, INPUT);
+  //lcd.begin(16, 2);
+  //myservo.attach(servo);
+  delay(500); //give half a sec for the US sensors to calculate initial distance value
+  sensor1Initial = measureDistance(sensor1);
+  sensor2Initial = measureDistance(sensor2);  
+  mlx.begin(); //Inititalize the temp sensor
+}
+
+
+
+void loop() {
+  
+  normal();
+  visitorCounter();
+  postdata();
+  receivedata();
+  
+
+
+ 
+}
+
+
+
+
+void postdata()
+{
+  // make TCP connections
+  WiFiClient client;
+  const int httpPort = 80;
+  if (!client.connect(host, httpPort)) {
+    return;
+  }
+
+  String url = "/update?key=";
+  url+=writeAPIKey;
+  url+="&field1=";
+  url+=String(rejections);
+  url+="&field2=";
+  url+=String(temp);
+  url+="&field3=";
+  url+=String(currentPeople);
+  url+="&field4=";
+  url+=String(maxPeople);
+  url+="&field5=";
+  url+=String(maxtemp);
+  url+="\r\n";
+
+
+  String url1= "/update?key=";
+   url+=writeAPIKey1;
+   url+="&field1=1";
+   url+="\r\n";
+
+  
+  // Request to the server
+  client.print(String("GET ") + url + " HTTP/1.1\r\n" +
+               "Host: " + host + "\r\n" + 
+               "Connection: close\r\n\r\n");
+               
+   delay(1000);
+   
+  client.print(String("GET ") + url1 + " HTTP/1.1\r\n" +
+               "Host: " + host + "\r\n" + 
+               "Connection: close\r\n\r\n");
+ 
+ 
+ Serial.println("Send to ThingSpeak.\n");
+ client.stop();
+ Serial.println("Wait for 15 sec to update next datapack in thingSpeak");
+ delay(1000);
+}
+
+
+
+
+
+
+void receivedata()
+{  ThingSpeak.begin( client );
+   maxPeople =  ThingSpeak.readFloatField( 969032, 4, writeAPIKey );
+  Serial.println( " Data read from ThingSpeak: " + String (maxPeople, 9 ) ); 
+   maxtemp =  ThingSpeak.readFloatField( 969032, 5, writeAPIKey );
+  Serial.println( " Data read from ThingSpeak: " + String( maxtemp, 9 ) ); 
+}
+
+
+
+
+
+
+
+void normal()
+{
+   myservo.write(0); //Servo barrier initially closed
+  //dist = sanitizer();
+  if (digitalRead(IRpin) == LOW)
+  {
+    //Dispense sanitizer
+    digitalWrite(pump, HIGH);
+    Serial.print("Pump On\n");
+    delay(150);
+    digitalWrite(pump, LOW);
+    Serial.print("Pump OFF\n");
+    //lcd.clear();
+    //lcd.print("Hold steady"); //Hold hand steady in front of the temp sensor for 3 sec
+    Serial.print("Hold steady");
+    delay(3000);
+    temp = takeTemp(); //takeTemp() returns the temp reading of the temp sensor
+    //lcd.clear();
+    //lcd.print("Temperature: ");
+    //lcd.print(temp);
+    Serial.print("Temperature: ");
+    Serial.print(temp);
+    Serial.print("\n");
+    if(temp > maxtemp || temp <90)
+    {
+      digitalWrite(buzzer, 1);
+      //lcd.clear();
+      Serial.print("Temp exceeded\n");
+      //lcd.print("Temp exceeded");
+      delay(2000);
+      digitalWrite(buzzer, 0);
+      rejections+=1;
+      //lcd.clear();
+    }   
+    else 
+    {
+      //lcd.clear();
+      //lcd.print("Welcome");
+      Serial.print("Welcome\n");
+      delay(500);
+     for(int i=0;i<90;i++)
+      visitorCounter();
+    }
+  }
+  else
+  {
+    digitalWrite(pump, LOW);
+    Serial.print("Pump OFF\n");
+  }
+}
+
+
+
+
+
+
+
+
+
+
+/*int sanitizer()
+{
+//  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  duration = pulseIn(echoPin, HIGH);
+
+  distance = duration * 0.034 / 2;
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm\n");
+  return distance;
+}*/
+
+
+
+
+
+float takeTemp()
+{
+   return mlx.readObjectTempF();
+}
+
+
+
+
+
+void visitorCounter()
+{
+  //Read ultrasonic sensors
+  int sensor1Val = measureDistance(sensor1);
+  int sensor2Val = measureDistance(sensor2);
+
+  //Process the data
+  if(sensor1Val < sensor1Initial - 30 && sequence.charAt(0) != '1'){
+    sequence += "1";
+  }
+  else if(sensor2Val < sensor2Initial - 30 && sequence.charAt(0) != '2'){
+    sequence += "2";
+  }
+  
+  if(sequence.equals("12")){
+    currentPeople++;  
+    sequence="";
+    delay(550);
+  }
+  else if(sequence.equals("21") && currentPeople > 0){
+    currentPeople--;  
+    sequence="";
+    myservo.write(90);
+    //lcd.print("Man Exiting");
+    Serial.print("Man Exiting");
+    delay(200);
+    //lcd.clear();
+    myservo.write(0);
+    delay(550);
+  }
+
+  //Resets the sequence if it is invalid or timeouts
+  if(sequence.length() > 2 || sequence.equals("11") || sequence.equals("22") || timeoutCounter > 200){
+    sequence="";  
+  }
+
+  if(sequence.length() == 1){ //
+    timeoutCounter++;
+  }else{
+    timeoutCounter=0;
+  }
+
+  //Print values to serial
+  Serial.print("Seq: ");
+  Serial.print(sequence);
+  Serial.print(" S1: ");
+  Serial.print(sensor1Val);
+  Serial.print(" S2: ");
+  Serial.println(sensor2Val); 
+  
+  //Display current people count 
+  Serial.print("Current people:");
+  Serial.print(currentPeople);
+  Serial.print("\n");
+ 
+  //If the number of people is too high, trigger the buzzer
+  if(currentPeople > maxPeople){
+    //lcd.clear();
+    Serial.print("Max people limit");
+    tone(buzzer, 1700);  
+    myservo.write(0); //Close barrier
+    delay(2000);
+    noTone(buzzer);   
+  }else{
+    myservo.write(90); //Open barrier
+    noTone(buzzer);  
+  }
+}
+int measureDistance(int a[]) {
+  pinMode(a[1], OUTPUT);
+  digitalWrite(a[1], LOW);
+  delayMicroseconds(2);
+  digitalWrite(a[1], HIGH);
+  delayMicroseconds(10);
+  digitalWrite(a[1], LOW);
+  pinMode(a[0], INPUT);
+  long duration = pulseIn(a[0], HIGH, 100000);
+  return duration / 29 / 2;
+}
