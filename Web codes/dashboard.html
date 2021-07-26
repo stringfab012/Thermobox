@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Collection Dashboard</title>
+    <link rel="stylesheet" type="text/css" href="style1.css" media="screen"/>
+</head>
+<body>
+    <div class="c1">
+        <h1>Data Collection Dasboard</h1> 
+
+       
+           <span >
+            <button class="button1" onclick="document.location='settings.html'">Settings</button>
+            <button class="button2" onclick="document.location='index.html'">Logout</button>
+        </span>
+     
+
+    </div>
+    <div class="c2">
+        <table class="center">
+            <tr>
+                <td id="block1">
+                    <h2>Device Status</h2>
+                    <iframe width="500" height="220" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/1416964/widgets/325104""></iframe>
+                </td>
+                <td id="block2">
+                    <h2>Total Rejections</h2>
+                    <iframe width="500" height="220" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/969032/widgets/325106"></iframe>
+                </td>
+            </tr>
+            <tr>
+                <td id="block3">
+                    <h2>Current Entry's Temperature</h2>
+                    <iframe width="500" height="220" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/969032/widgets/325107"></iframe>
+                </td>
+                <td id="block4">
+                    <h2>Total No. of Entries</h2>
+                    <iframe width="500" height="220" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/969032/widgets/325108"></iframe>
+                </td>
+            </tr>
+        </table>
+
+    </div>
+    <script src="app1.js"></script>  
+</body>
+</html>
